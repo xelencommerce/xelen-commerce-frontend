@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html {
+    @apply bg-background font-sans text-foreground antialiased;
+    color-scheme: light;
+    overflow-wrap: anywhere;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+  }
+
+  button:not(:disabled),
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+}

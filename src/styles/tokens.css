@@ -1,0 +1,21 @@
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #475569;
+  --color-border: #cbd5e1;
+  --color-primary: #1e293b;
+  --color-primary-hover: #334155;
+  --color-primary-foreground: #ffffff;
+  --color-focus: #2563eb;
+  --color-danger: #b91c1c;
+
+  --spacing: 0.25rem;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.75rem;
+  --shadow-panel: 0 1px 3px rgb(15 23 42 / 0.05);
+}
