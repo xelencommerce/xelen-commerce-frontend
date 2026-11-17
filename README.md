@@ -1,6 +1,6 @@
 # Zellen Commerce / ecomiQ
 
-A React and TypeScript frontend for a multi-tenant commerce SaaS with future CRM modules. The application includes a feature-based foundation and Figma-based login, MFA, and password-recovery screens. Authentication flows are interactive frontend previews; backend authentication and business workflows are not implemented.
+A React and TypeScript frontend for a multi-tenant commerce SaaS with future CRM modules. The application includes a feature-based foundation and Figma-based login, recovery, sign-up, verification, and business-onboarding screens. Authentication and document flows are interactive frontend previews; backend authentication and business workflows are not implemented.
 
 See the [authentication feature guide](src/features/auth/README.md) for the design references, assets, page behavior, and remaining integration requirements.
 
@@ -46,7 +46,7 @@ src/
 │   ├── ui/             # Button, Input, Card: domain-independent primitives
 │   ├── common/         # Shared application presentation
 │   ├── forms/          # Future reusable field composition
-│   ├── layout/         # Auth, Super Admin, and Merchant shells
+│   ├── layout/         # Super Admin and Merchant shells
 │   └── feedback/       # Loader and ErrorState
 ├── config/             # Validated environment configuration
 ├── constants/          # Application-wide constants, including route paths
@@ -58,7 +58,8 @@ src/
 │   │   ├── schemas/
 │   │   ├── types/
 │   │   ├── pages/
-│   │   └── index.ts    # Explicit public exports
+│   │   ├── index.ts    # Login/recovery and shared auth shell exports
+│   │   └── signup.ts   # Separate lazy registration entry point
 │   ├── admin/          # components/, pages/, services/, index.ts
 │   └── merchant/       # components/, pages/, services/, index.ts
 ├── hooks/              # Hooks genuinely shared across features
@@ -95,20 +96,29 @@ To add a feature: create its folder, add only the subfolders it needs, define ex
 
 React Router runs in data mode with a stable browser router, nested `Outlet` layouts, and lazy-loaded feature page modules. Tests use the same route configuration with memory history.
 
-| Path                           | Layout                         | Content                                        |
-| ------------------------------ | ------------------------------ | ---------------------------------------------- |
-| `/`                            | —                              | Redirects to `/login` with history replacement |
-| `/login`                       | Auth feature shell             | Credentials form                               |
-| `/login/verify`                | Auth feature shell             | Verification method selection                  |
-| `/login/verify/sms`            | Auth feature shell             | SMS OTP entry and local resend timer           |
-| `/login/verify/authenticator`  | Auth feature shell             | Authenticator OTP entry                        |
-| `/forgot-password`             | Auth feature shell             | Reset-link request preview                     |
-| `/forgot-password/check-email` | Auth feature shell             | Email confirmation preview                     |
-| `/reset-password`              | Auth feature shell             | Password requirements and confirmation         |
-| `/register`                    | Shared authentication scaffold | Registration placeholder                       |
-| `/admin`                       | Super Admin                    | Administration workspace placeholder           |
-| `/merchant`                    | Merchant                       | Commerce/CRM workspace placeholder             |
-| Any unmatched path             | Shared fallback                | 404 with a return link                         |
+| Path                             | Layout             | Content                                                                        |
+| -------------------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| `/`                              | —                  | Redirects to `/login` with history replacement                                 |
+| `/login`                         | Auth feature shell | Credentials form                                                               |
+| `/login/verify`                  | Auth feature shell | Verification method selection                                                  |
+| `/login/verify/sms`              | Auth feature shell | SMS OTP entry and local resend timer                                           |
+| `/login/verify/authenticator`    | Auth feature shell | Authenticator OTP entry                                                        |
+| `/forgot-password`               | Auth feature shell | Reset-link request preview                                                     |
+| `/forgot-password/check-email`   | Auth feature shell | Email confirmation preview                                                     |
+| `/reset-password`                | Auth feature shell | Password requirements and confirmation                                         |
+| `/register`                      | Auth feature shell | Sign-up form                                                                   |
+| `/register/verify`               | Auth feature shell | Verification-method setup                                                      |
+| `/register/phone`                | Auth feature shell | International phone entry                                                      |
+| `/register/verify/sms`           | Auth feature shell | Local SMS verification preview                                                 |
+| `/register/authenticator`        | Auth feature shell | Illustrative QR setup                                                          |
+| `/register/verify/authenticator` | Auth feature shell | Local authenticator-code preview                                               |
+| `/register/business`             | Auth feature shell | Business name                                                                  |
+| `/register/industry`             | Auth feature shell | Searchable industry selection                                                  |
+| `/register/documents`            | Auth feature shell | Local document-selection preview                                               |
+| `/register/submitted`            | Auth feature shell | Submission preview; redirects to documents if the draft has not been submitted |
+| `/admin`                         | Super Admin        | Administration workspace placeholder                                           |
+| `/merchant`                      | Merchant           | Commerce/CRM workspace placeholder                                             |
+| Any unmatched path               | Shared fallback    | 404 with a return link                                                         |
 
 All routes are currently public. Auth forms validate and navigate locally, with clear preview feedback: they do not authenticate, send email/SMS, verify a code, or change a password. No fake session, role guard, token flow, or backend endpoint is implemented. Passwords and codes remain in local form state and clear after valid submission; they are not persisted. Navigation between role areas is for reviewing the foundation, not an access-control mechanism. Future backend authorization must independently validate every request's user and tenant access.
 
@@ -159,13 +169,13 @@ Query keys isolate client caches; they do not enforce backend tenant authorizati
 
 Tailwind 4 uses its Vite plugin. `styles/tokens.css` centralizes semantic colors, typography, spacing, radii, and shadows through `@theme`; `styles/globals.css` provides base styles and visible focus indicators. Use semantic classes such as `bg-surface` and `text-muted-foreground` instead of scattering brand color values throughout components.
 
-The shared foundation retains its neutral theme and system fonts. The auth feature uses its own scoped Figma tokens, self-hosted Geist/Geist Mono, original imagery, and reusable React/SVG marketing cards. Its forms use React Hook Form and Zod. Target current evergreen browsers. Registration, dark mode, localization, production dashboards, backend integration, and animations remain deferred. Motion is installed and is not currently used.
+The shared foundation retains its neutral theme and system fonts. The auth feature uses scoped Figma tokens, self-hosted Geist/Geist Mono, original imagery, and reusable React/SVG marketing cards. Forms use React Hook Form and Zod. Registration has its own lazy entry point, in-memory draft, international phone validation, industry selector, and document metadata previews. Target current evergreen browsers. Dark mode, localization, production dashboards, backend integration, and animations remain deferred. Motion is installed and is not currently used.
 
 Button defaults to `type="button"`, supports variants/sizes, and disables interaction when loading. Input accepts native attributes and refs; provide a visible label and connect descriptions/errors using IDs. Card is a composable container. Loader exposes a live status without animation. ErrorState supports an optional retry action.
 
 ## Dependencies and compatibility
 
-Installed runtime packages at the Step 1 handoff:
+Installed runtime packages:
 
 | Package                 | Version |
 | ----------------------- | ------- |
@@ -178,6 +188,7 @@ Installed runtime packages at the Step 1 handoff:
 | `@hookform/resolvers`   | 7.0.6   |
 | `zod`                   | 4.6.7   |
 | `lucide-react`          | 1.73.0  |
+| `libphonenumber-js`     | 1.13.16 |
 | `motion`                | 14.14.0 |
 | `clsx`                  | 2.1.1   |
 | `tailwind-merge`        | 3.7.0   |
@@ -220,4 +231,4 @@ Run `npm run check` before merging. Tests cover routes/layouts, redirect/404/err
 
 Build with `npm run build`, then deploy `dist/` to a static host. Configure SPA fallback so direct visits to routes such as `/merchant` return `index.html`, while real asset requests retain normal file/404 handling. No particular hosting provider is assumed. `npm run preview` is for local verification, not the production server.
 
-The current auth implementation covers login and recovery only. Backend contracts must be agreed before replacing preview handlers with authentication, delivery, session, or reset-token behavior. The feature guide records unavailable design details and deliberate preview differences.
+The auth feature includes login, recovery, and the complete sign-up/onboarding preview. No account is created, no SMS is sent, and no documents are uploaded or verified. Backend contracts must be agreed before replacing preview handlers with authentication, delivery, sessions, reset tokens, or document processing. The feature guide records unavailable design details and deliberate preview differences.

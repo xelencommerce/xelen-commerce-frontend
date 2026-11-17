@@ -7,7 +7,15 @@ import { AuthButton } from './AuthButton';
 import { AuthFeedback } from './AuthFeedback';
 import { OtpInput } from './OtpInput';
 
-export function VerificationForm({ errorMessage }: { errorMessage?: string }) {
+export function VerificationForm({
+  errorMessage,
+  onComplete,
+  previewMessage,
+}: {
+  errorMessage?: string;
+  onComplete?: () => void;
+  previewMessage?: string;
+}) {
   const [submitted, setSubmitted] = useState(false);
   const { control, handleSubmit, reset } = useForm<VerificationValues>({
     resolver: zodResolver(verificationSchema),
@@ -17,6 +25,7 @@ export function VerificationForm({ errorMessage }: { errorMessage?: string }) {
     <>
       <AuthFeedback tone={errorMessage ? 'error' : 'preview'}>
         {errorMessage ??
+          previewMessage ??
           (submitted
             ? 'Preview complete. Your code was not verified and you are not signed in.'
             : 'Frontend preview. Use example digits only; no code is verified.')}
@@ -27,7 +36,8 @@ export function VerificationForm({ errorMessage }: { errorMessage?: string }) {
         onSubmit={(event) => {
           void handleSubmit(() => {
             reset();
-            setSubmitted(true);
+            if (onComplete) onComplete();
+            else setSubmitted(true);
           })(event);
         }}
       >

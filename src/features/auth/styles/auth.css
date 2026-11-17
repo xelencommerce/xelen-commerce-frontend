@@ -235,6 +235,9 @@
 .auth-theme .auth-input--password {
   padding-right: 56px;
 }
+.auth-theme .auth-input:focus-visible {
+  border-color: var(--auth-foreground);
+}
 .auth-theme .auth-input[aria-invalid='true'] {
   border-color: var(--auth-danger);
 }

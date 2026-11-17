@@ -1,18 +1,18 @@
 import { z } from 'zod';
 
-const email = z
+export const emailSchema = z
   .string()
   .trim()
   .min(1, 'Enter your email address.')
   .email('Enter a valid email address.');
 
 export const loginSchema = z.object({
-  email,
+  email: emailSchema,
   password: z.string().min(1, 'Enter your password.'),
   remember: z.boolean(),
 });
 
-export const forgotPasswordSchema = z.object({ email });
+export const forgotPasswordSchema = z.object({ email: emailSchema });
 export const verificationSchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Enter the complete 6-digit code.'),
 });
@@ -27,15 +27,17 @@ export const passwordRequirements = [
   },
 ] as const;
 
+export const newPasswordSchema = z
+  .string()
+  .refine(
+    (value) =>
+      passwordRequirements.every((requirement) => requirement.test(value)),
+    'Meet all four password requirements.',
+  );
+
 export const resetPasswordSchema = z
   .object({
-    password: z
-      .string()
-      .refine(
-        (value) =>
-          passwordRequirements.every((requirement) => requirement.test(value)),
-        'Meet all four password requirements.',
-      ),
+    password: newPasswordSchema,
     confirmPassword: z.string().min(1, 'Confirm your password.'),
   })
   .refine((value) => value.password === value.confirmPassword, {

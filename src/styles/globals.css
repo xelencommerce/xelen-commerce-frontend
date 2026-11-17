@@ -23,6 +23,14 @@
     outline-offset: 3px;
   }
 
+  :where(
+    input:not([type='checkbox'], [type='radio'], [type='file']),
+    textarea,
+    select
+  ):focus-visible {
+    outline: none;
+  }
+
   ::selection {
     background: var(--color-primary);
     color: var(--color-primary-foreground);

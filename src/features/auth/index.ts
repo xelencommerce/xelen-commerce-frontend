@@ -1,5 +1,4 @@
 export { LoginPage } from './pages/LoginPage';
-export { RegisterPage } from './pages/RegisterPage';
 export { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 export { AuthShell } from './components/AuthShell';
 export { VerificationMethodPage } from './pages/VerificationMethodPage';

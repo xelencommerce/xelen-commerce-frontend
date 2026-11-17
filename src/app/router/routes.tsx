@@ -2,7 +2,6 @@ import { Navigate } from 'react-router';
 import type { RouteObject } from 'react-router';
 import { Loader } from '@/components/feedback/Loader';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { AuthLayout } from '@/components/layout/AuthLayout';
 import { MerchantLayout } from '@/components/layout/MerchantLayout';
 import { routes } from '@/constants/routes';
 import { NotFoundPage } from './NotFoundPage';
@@ -18,21 +17,88 @@ export const routeConfig: RouteObject[] = [
     children: [
       { index: true, element: <Navigate to={routes.login} replace /> },
       {
-        Component: AuthLayout,
-        children: [
-          {
-            path: routes.register,
-            lazy: async () => ({
-              Component: (await import('@/features/auth')).RegisterPage,
-            }),
-          },
-        ],
-      },
-      {
         lazy: async () => ({
           Component: (await import('@/features/auth')).AuthShell,
         }),
         children: [
+          {
+            path: routes.register,
+            lazy: async () => ({
+              Component: (await import('@/features/auth/signup')).SignupLayout,
+            }),
+            children: [
+              {
+                index: true,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .RegisterPage,
+                }),
+              },
+              {
+                path: routes.signupVerification,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupVerificationPage,
+                }),
+              },
+              {
+                path: routes.signupPhone,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupPhonePage,
+                }),
+              },
+              {
+                path: routes.signupSms,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupSmsPage,
+                }),
+              },
+              {
+                path: routes.signupAuthenticator,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupAuthenticatorPage,
+                }),
+              },
+              {
+                path: routes.signupAuthenticatorCode,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupAuthenticatorCodePage,
+                }),
+              },
+              {
+                path: routes.signupBusiness,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupBusinessPage,
+                }),
+              },
+              {
+                path: routes.signupIndustry,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupIndustryPage,
+                }),
+              },
+              {
+                path: routes.signupDocuments,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupDocumentsPage,
+                }),
+              },
+              {
+                path: routes.signupSubmitted,
+                lazy: async () => ({
+                  Component: (await import('@/features/auth/signup'))
+                    .SignupSubmittedPage,
+                }),
+              },
+            ],
+          },
           {
             path: routes.login,
             lazy: async () => ({

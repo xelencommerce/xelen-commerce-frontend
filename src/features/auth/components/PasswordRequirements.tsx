@@ -11,7 +11,7 @@ export function PasswordRequirements({
   const met = passwordRequirements.filter((requirement) =>
     requirement.test(password),
   ).length;
-  const filled = met === 4 ? 3 : Math.ceil(met / 2);
+  const filled = Math.min(3, met);
   return (
     <div className="auth-password-requirements" id={id}>
       <div

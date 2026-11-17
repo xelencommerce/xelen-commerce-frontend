@@ -24,7 +24,20 @@ afterEach(() => {
 describe('application routes', () => {
   it.each([
     ['/login', 'Welcome back', 'Authentication'],
-    ['/register', 'Register', 'Authentication'],
+    ['/register', 'Sign up to Zellen', 'Authentication'],
+    ['/register/verify', 'Two-factor authentication', 'Authentication'],
+    ['/register/phone', 'Two-factor authentication', 'Authentication'],
+    ['/register/verify/sms', 'Two-factor authentication', 'Authentication'],
+    ['/register/authenticator', 'Two-factor authentication', 'Authentication'],
+    [
+      '/register/verify/authenticator',
+      'Two-factor authentication',
+      'Authentication',
+    ],
+    ['/register/business', 'Tell us about your business', 'Authentication'],
+    ['/register/industry', 'Tell us about your business', 'Authentication'],
+    ['/register/documents', 'Verify your business', 'Authentication'],
+    ['/register/submitted', 'Verify your business', 'Authentication'],
     ['/forgot-password', 'Reset your password', 'Authentication'],
     ['/login/verify', 'Two-factor authentication', 'Authentication'],
     ['/login/verify/sms', 'Enter your code', 'Authentication'],
@@ -105,7 +118,7 @@ describe('application routes', () => {
       const router = renderRoute('/login');
       for (const [path, title] of [
         ['/login', 'Welcome back'],
-        ['/register', 'Register'],
+        ['/register', 'Sign up to Zellen'],
         ['/forgot-password', 'Reset your password'],
         ['/login/verify', 'Two-factor authentication'],
         ['/login/verify/sms', 'Enter your code'],
