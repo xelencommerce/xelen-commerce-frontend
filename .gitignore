@@ -8,3 +8,6 @@ coverage/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Keep project documentation on this machine.
+README.md
