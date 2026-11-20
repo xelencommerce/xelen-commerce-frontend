@@ -3,19 +3,19 @@ import type { Variants } from 'motion/react';
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export const marketingTiming = {
-  heading: { delay: 0, duration: 0.95 },
-  description: { delay: 0.55, duration: 0.7 },
-  revenue: { delay: 1.35, duration: 0.7 },
-  conversion: { delay: 1.55, duration: 0.7 },
-  order: { delay: 1.8, duration: 0.7 },
-  message: { delay: 2.05, duration: 0.7 },
-  channel: { delay: 2.3, duration: 0.7 },
-  bars: { delay: 2.4, duration: 1.2, stagger: 0.09 },
-  gauge: { delay: 3.1, duration: 1.6 },
-  donut: { delay: 3.6, duration: 1.6, stagger: 0.12 },
-  incoming: { delay: 5, duration: 0.55 },
-  firstReply: { delay: 5.6, duration: 0.65 },
-  lastReply: { delay: 5.85, duration: 0.65 },
+  heading: { delay: 0, duration: 0.5 },
+  description: { delay: 0.25, duration: 0.4 },
+  revenue: { delay: 0.7, duration: 0.4 },
+  conversion: { delay: 0.85, duration: 0.4 },
+  order: { delay: 1, duration: 0.4 },
+  message: { delay: 1.15, duration: 0.4 },
+  channel: { delay: 1.3, duration: 0.4 },
+  bars: { delay: 1.35, duration: 0.7, stagger: 0.045 },
+  gauge: { delay: 1.7, duration: 0.85 },
+  donut: { delay: 1.95, duration: 0.85, stagger: 0.065 },
+  incoming: { delay: 2.65, duration: 0.3 },
+  firstReply: { delay: 3, duration: 0.35 },
+  lastReply: { delay: 3.15, duration: 0.35 },
 } as const;
 
 type Timing = { delay: number; duration: number };
