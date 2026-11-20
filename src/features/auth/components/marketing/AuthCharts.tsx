@@ -1,5 +1,12 @@
-import { useId } from 'react';
+import { useContext, useId } from 'react';
 import { Gauge } from 'lucide-react';
+import * as m from 'motion/react-m';
+import { MarketingAnimationContext } from './marketing-playback';
+import {
+  channelSegmentVariants,
+  conversionGaugeVariants,
+  revenueBarVariants,
+} from './marketing-animation';
 
 // Paths retained from the original Figma SVG export; each segment stays individually addressable.
 const channelSegments = [
@@ -26,11 +33,15 @@ const channelSegments = [
 ];
 
 export function RevenueBars() {
+  const playback = useContext(MarketingAnimationContext);
   return (
     <svg viewBox="0 0 124 64" width="124" height="64" aria-hidden="true">
       {[28, 40, 32, 56, 40, 48, 60, 44, 64].map((height, index) => (
-        <rect
+        <m.rect
           key={index}
+          {...playback}
+          variants={revenueBarVariants(index)}
+          style={{ transformBox: 'fill-box', originX: 0.5, originY: 1 }}
           x={20 + index * 12}
           y={64 - height}
           width="8"
@@ -44,6 +55,7 @@ export function RevenueBars() {
 }
 
 export function ConversionGauge() {
+  const playback = useContext(MarketingAnimationContext);
   const gradientId = useId();
   return (
     <div className="auth-gauge">
@@ -66,7 +78,9 @@ export function ConversionGauge() {
           strokeWidth="12"
           strokeLinecap="round"
         />
-        <path
+        <m.path
+          {...playback}
+          variants={conversionGaugeVariants}
           d="M1280 496C1280 488.17 1281.92 480.459 1285.58 473.539C1289.24 466.619 1294.54 460.7 1301.02 456.299C1307.5 451.898 1314.95 449.148 1322.73 448.289C1330.52 447.43 1338.39 448.487 1345.67 451.37"
           stroke={`url(#${gradientId})`}
           strokeWidth="12"
@@ -79,6 +93,7 @@ export function ConversionGauge() {
 }
 
 export function ChannelDonut() {
+  const playback = useContext(MarketingAnimationContext);
   return (
     <div className="auth-channel-donut">
       <svg viewBox="1122 596 248 248" fill="none" aria-hidden="true">
@@ -90,9 +105,11 @@ export function ChannelDonut() {
           strokeWidth="1.5"
           strokeDasharray="3 5"
         />
-        {channelSegments.map(({ d, color }) => (
-          <path
+        {channelSegments.map(({ d, color }, index) => (
+          <m.path
             key={color}
+            {...playback}
+            variants={channelSegmentVariants(index)}
             d={d}
             stroke={color}
             strokeWidth="32"

@@ -5,10 +5,22 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { routeConfig } from './routes';
 
 const routers: ReturnType<typeof createMemoryRouter>[] = [];
-function renderRoute(path: string) {
+async function renderRoute(path: string) {
   const router = createMemoryRouter(routeConfig, { initialEntries: [path] });
   routers.push(router);
   const result = render(<RouterProvider router={router} />);
+  // Await lazy route initialization rather than timing cold module imports as UI queries.
+  await act(async () => {
+    if (router.state.initialized) return;
+    await new Promise<void>((resolve) => {
+      const unsubscribe = router.subscribe((state) => {
+        if (state.initialized) {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+  });
   return { router, ...result };
 }
 afterEach(() => {
@@ -22,7 +34,7 @@ it('completes the SMS signup and document preview without network requests or pe
     .mockRejectedValue(new Error('Unexpected signup request'));
   const xhrSpy = vi.spyOn(XMLHttpRequest.prototype, 'open');
   const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
-  const { router } = renderRoute('/register');
+  const { router } = await renderRoute('/register');
   await screen.findByRole('heading', { name: 'Sign up to Zellen' });
   await user.type(screen.getByLabelText('Email'), 'olaf@apexretail.com');
   await user.type(
@@ -123,7 +135,7 @@ it('completes the SMS signup and document preview without network requests or pe
 
 it('includes the authenticator QR and a separate OTP step before business setup', async () => {
   const user = userEvent.setup();
-  const { router } = renderRoute('/register/verify');
+  const { router } = await renderRoute('/register/verify');
   await screen.findByRole('heading', { name: 'Two-factor authentication' });
   await user.click(
     screen.getByRole('link', { name: /Set up authenticator app/ }),
@@ -149,7 +161,7 @@ it('includes the authenticator QR and a separate OTP step before business setup'
 
 it('returns a fresh submitted-page visit to empty document selection and allows skipping', async () => {
   const user = userEvent.setup();
-  const { router } = renderRoute('/register/submitted');
+  const { router } = await renderRoute('/register/submitted');
   await screen.findByRole('heading', { name: 'Verify your business' });
   expect(router.state.location.pathname).toBe('/register/documents');
   expect(

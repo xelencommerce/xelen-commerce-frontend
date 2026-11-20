@@ -1,8 +1,14 @@
 import { Banknote, CalendarDays, PieChart, TrendingUp } from 'lucide-react';
+import { useContext } from 'react';
 import type { ReactNode } from 'react';
+import { domAnimation, LazyMotion } from 'motion/react';
+import * as m from 'motion/react-m';
 import { Card } from '@/components/ui/Card';
 import mayaAvatar from '@/assets/images/auth/maya.jpg';
 import leoAvatar from '@/assets/images/auth/leo.jpg';
+import { useMarketingAnimation } from '../../hooks/use-marketing-animation';
+import { marketingVariants } from './marketing-animation';
+import { MarketingAnimationContext } from './marketing-playback';
 import {
   ChannelDonut,
   ConversionGauge,
@@ -11,21 +17,30 @@ import {
   RevenueBars,
 } from './AuthCharts';
 
+const MotionCard = m.create(Card);
+
 function MetricCard({
   title,
   value,
   change,
   icon,
   chart,
+  kind,
 }: {
   title: string;
   value: string;
   change: string;
   icon: ReactNode;
   chart: ReactNode;
+  kind: 'revenue' | 'conversion';
 }) {
+  const playback = useContext(MarketingAnimationContext);
   return (
-    <Card className="auth-marketing-card auth-metric-card">
+    <MotionCard
+      {...playback}
+      variants={marketingVariants[kind]}
+      className="auth-marketing-card auth-metric-card"
+    >
       <div className="auth-metric-heading">
         <h3>{title}</h3>
         <span className="auth-icon-tile">{icon}</span>
@@ -40,13 +55,18 @@ function MetricCard({
         </div>
         {chart}
       </div>
-    </Card>
+    </MotionCard>
   );
 }
 
 function OrderCard() {
+  const playback = useContext(MarketingAnimationContext);
   return (
-    <Card className="auth-marketing-card auth-order-card">
+    <MotionCard
+      {...playback}
+      variants={marketingVariants.order}
+      className="auth-marketing-card auth-order-card"
+    >
       <div className="auth-customer-row">
         <img
           src={mayaAvatar}
@@ -71,13 +91,18 @@ function OrderCard() {
           Instagram · $186.50
         </p>
       </div>
-    </Card>
+    </MotionCard>
   );
 }
 
 function MessageCard() {
+  const playback = useContext(MarketingAnimationContext);
   return (
-    <Card className="auth-marketing-card auth-message-card">
+    <MotionCard
+      {...playback}
+      variants={marketingVariants.message}
+      className="auth-marketing-card auth-message-card"
+    >
       <div className="auth-customer-row">
         <div className="auth-avatar-status">
           <img
@@ -96,19 +121,30 @@ function MessageCard() {
         <FacebookMark />
       </div>
       <div className="auth-conversation">
-        <p>Is the tracksuit back in size M?</p>
+        <m.p {...playback} variants={marketingVariants.incoming}>
+          Is the tracksuit back in size M?
+        </m.p>
         <div>
-          <p>Yes! Sending you the link now.</p>
-          <p>Yes! Sending you the link now.</p>
+          <m.p {...playback} variants={marketingVariants.firstReply}>
+            Yes! Sending you the link now.
+          </m.p>
+          <m.p {...playback} variants={marketingVariants.lastReply}>
+            Yes! Sending you the link now.
+          </m.p>
         </div>
       </div>
-    </Card>
+    </MotionCard>
   );
 }
 
 function ChannelCard() {
+  const playback = useContext(MarketingAnimationContext);
   return (
-    <Card className="auth-marketing-card auth-channel-card">
+    <MotionCard
+      {...playback}
+      variants={marketingVariants.channel}
+      className="auth-marketing-card auth-channel-card"
+    >
       <div className="auth-channel-heading">
         <h3>Revenue by channel</h3>
         <span>This month</span>
@@ -118,47 +154,59 @@ function ChannelCard() {
         <InstagramMark />
         <span>Instagram is up 12% this month</span>
       </p>
-    </Card>
+    </MotionCard>
   );
 }
 
 export function AuthVisualPanel() {
+  const { panelRef, motionProps, initial } = useMarketingAnimation();
   return (
-    <aside className="auth-visual-panel" aria-label="Zellen Commerce overview">
-      <div className="auth-marketing-heading">
-        <h2>
-          Sell everywhere.
-          <br />
-          Run it all from
-          <br />
-          one place.
-        </h2>
-        <p>
-          Share links, orders, messages and analytics for your store, in one
-          back office.
-        </p>
-      </div>
-      <div className="auth-marketing-grid">
-        <MetricCard
-          title="Revenue"
-          value="$48,234"
-          change="12.3%"
-          icon={<Banknote size={24} strokeWidth={1.5} aria-hidden="true" />}
-          chart={<RevenueBars />}
-        />
-        <MetricCard
-          title="Conversion"
-          value="3.9%"
-          change="0.4%"
-          icon={<PieChart size={24} strokeWidth={1.5} aria-hidden="true" />}
-          chart={<ConversionGauge />}
-        />
-        <div className="auth-marketing-stack">
-          <OrderCard />
-          <MessageCard />
-        </div>
-        <ChannelCard />
-      </div>
-    </aside>
+    <LazyMotion features={domAnimation} strict>
+      <MarketingAnimationContext value={motionProps}>
+        <aside
+          ref={panelRef}
+          className="auth-visual-panel"
+          aria-label="Zellen Commerce overview"
+          data-animation-state={initial === 'complete' ? 'complete' : 'waiting'}
+        >
+          <div className="auth-marketing-heading">
+            <m.h2 {...motionProps} variants={marketingVariants.heading}>
+              Sell everywhere.
+              <br />
+              Run it all from
+              <br />
+              one place.
+            </m.h2>
+            <m.p {...motionProps} variants={marketingVariants.description}>
+              Share links, orders, messages and analytics for your store, in one
+              back office.
+            </m.p>
+          </div>
+          <div className="auth-marketing-grid">
+            <MetricCard
+              kind="revenue"
+              title="Revenue"
+              value="$48,234"
+              change="12.3%"
+              icon={<Banknote size={24} strokeWidth={1.5} aria-hidden="true" />}
+              chart={<RevenueBars />}
+            />
+            <MetricCard
+              kind="conversion"
+              title="Conversion"
+              value="3.9%"
+              change="0.4%"
+              icon={<PieChart size={24} strokeWidth={1.5} aria-hidden="true" />}
+              chart={<ConversionGauge />}
+            />
+            <div className="auth-marketing-stack">
+              <OrderCard />
+              <MessageCard />
+            </div>
+            <ChannelCard />
+          </div>
+        </aside>
+      </MarketingAnimationContext>
+    </LazyMotion>
   );
 }

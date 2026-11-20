@@ -6,7 +6,7 @@ Login, recovery, sign-up, MFA setup, and business onboarding follow the approved
 
 - `pages/` composes each route and its local flow.
 - `components/` owns the auth shell, field composition, forms, OTP controls, feedback, and resend controls.
-- `components/marketing/` owns independent React cards and native SVG charts for the shared visual panel. Shapes remain separate for future animation work; no animations are currently applied.
+- `components/marketing/` owns independent React cards, native SVG charts, centralized entrance timings, and browser-memory playback state for the shared visual panel.
 - `pages/signup/` and `components/signup/` own the registration journey, searchable selectors, and document previews.
 - `lib/` owns the registration context/reducer and document-metadata helpers; `constants/` owns Figma industry options and document definitions.
 - `schemas/` owns Zod validation and inferred form types.
@@ -50,6 +50,26 @@ Phone parsing uses `libphonenumber-js/max`, with a searchable country list and E
 Document selection accepts PDF, JPG/JPEG, and PNG, up to 10 MiB (shown as 10 MB in Figma). Empty files, unsupported types, conflicting extension/MIME metadata, and oversized files show errors. Only filename, size, and MIME type are extracted; no file contents are read or uploaded. Local progress advances 0 → 25 → 50 → 75 → ready at 300 ms intervals. Timers stop on removal, replacement, cancellation, or provider unmount. Inputs clear after selection, allowing the same file to be selected again. Completed/review states are visual previews, not evidence of real submission or verification.
 
 Email is kept only in the mounted shell's React state. Passwords and OTP values stay in local form state and clear after valid submission. There is no local/session storage, cookie, URL, log, or API persistence of credentials. Direct visits are permitted for reviewing the pages; they do not represent an authorized recovery session.
+
+## Marketing entrance animation
+
+The shared panel uses the installed Motion package, scoped `LazyMotion`/`domAnimation`, and lightweight motion elements. Its 6.5-second entrance follows the approved written video description; the original video was unavailable for frame-by-frame comparison. The final layout, SVG paths, avatars, fonts, colors, and fixed metric values remain the Figma design.
+
+| Time       | Entrance                                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------------- |
+| 0–0.95s    | Heading reveals with opacity, 8px upward movement, and an 8px-to-zero blur.                                   |
+| 0.55–1.25s | Supporting description reveals.                                                                               |
+| 1.35–3.00s | Revenue, conversion, order, messaging, and channel cards enter with staggered fades and 20px upward movement. |
+| 2.40–4.32s | Revenue bars grow from their baseline.                                                                        |
+| 3.10–4.70s | Conversion's colored arc draws over its stationary track.                                                     |
+| 3.60–5.68s | Original channel-chart segments draw.                                                                         |
+| 5.00–6.50s | Incoming message and green replies reveal sequentially.                                                       |
+
+Timings and ease-out variants live in `components/marketing/marketing-animation.ts`. There is no loop, number counting, animated gradient, form animation, or bounce. Dimensions are reserved throughout playback.
+
+Playback starts once when the marketing panel enters the viewport. On desktop it is initially visible; on mobile it waits for scrolling below the form. Navigation within auth preserves playback. Leaving auth and returning after playback has started shows the completed panel, even if the original entrance was interrupted. The flag is in browser memory only and resets on refresh; no storage or backend requests are used. Resizing does not restart playback.
+
+Reduced motion shows the complete panel immediately, including when enabled during playback. A media-query change listener explicitly handles live changes. If IntersectionObserver is unavailable, the completed panel is shown. Controls, observers, listeners, and pending animation frames are cleaned up on unmount; development Strict Mode does not consume or duplicate playback. Forms remain usable from the first render.
 
 ## Design provenance
 
