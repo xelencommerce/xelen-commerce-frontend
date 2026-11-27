@@ -167,6 +167,17 @@ export const routeConfig: RouteObject[] = [
           },
         ],
       },
+      ...(import.meta.env.DEV
+        ? [
+            {
+              path: '/__preview/super-admin/master-dashboard',
+              lazy: async () => ({
+                Component: (await import('@/features/admin/preview'))
+                  .MasterDashboardPreviewPage,
+              }),
+            },
+          ]
+        : []),
       { path: '*', Component: NotFoundPage },
     ],
   },

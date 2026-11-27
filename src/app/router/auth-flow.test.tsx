@@ -1,14 +1,25 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
 import { routeConfig } from './routes';
 
 const routers: ReturnType<typeof createMemoryRouter>[] = [];
-function renderRoute(path: string) {
+async function renderRoute(path: string) {
   const router = createMemoryRouter(routeConfig, { initialEntries: [path] });
   routers.push(router);
   render(<RouterProvider router={router} />);
+  await act(async () => {
+    if (router.state.initialized) return;
+    await new Promise<void>((resolve) => {
+      const unsubscribe = router.subscribe((state) => {
+        if (state.initialized) {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+  });
   return router;
 }
 afterEach(() => {
@@ -22,7 +33,7 @@ it('walks login, MFA, and recovery without network requests or credential persis
     .mockRejectedValue(new Error('Unexpected auth request'));
   const xhrSpy = vi.spyOn(XMLHttpRequest.prototype, 'open');
   const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
-  const router = renderRoute('/login');
+  const router = await renderRoute('/login');
   await screen.findByRole('heading', { name: 'Welcome back' });
   await user.type(screen.getByLabelText('Email'), 'olaf@apexretail.com');
   await user.type(
@@ -93,14 +104,14 @@ it('walks login, MFA, and recovery without network requests or credential persis
 });
 
 it('uses generic wording on a direct confirmation-page visit', async () => {
-  renderRoute('/forgot-password/check-email');
+  await renderRoute('/forgot-password/check-email');
   await screen.findByRole('heading', { name: 'Check your email' });
   expect(screen.getByText(/reset link to your email address/)).toBeVisible();
 });
 
 it('validates password requirements and matching confirmation before completing a preview', async () => {
   const user = userEvent.setup();
-  renderRoute('/reset-password');
+  await renderRoute('/reset-password');
   await screen.findByRole('heading', { name: 'Create new password' });
   await user.type(screen.getByLabelText('Password', { exact: true }), 'weak');
   await user.type(

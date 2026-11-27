@@ -11,3 +11,4 @@ coverage/
 
 # Keep project documentation on this machine.
 README.md
+.design-cache/
